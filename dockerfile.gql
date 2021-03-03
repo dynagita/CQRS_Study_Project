@@ -1,0 +1,19 @@
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS build
+WORKDIR /app
+
+COPY GraphQLAPI.sln ./
+COPY ./GraphQLAPI/*.csproj ./
+RUN for file in *.csproj; do filename=$(basename $file .csproj); filepath="$filename"; mkdir $filepath; mv $file $filepath; done
+RUN dotnet restore
+
+COPY ./ ./
+#COPY ./tests ./tests
+RUN dotnet publish ./GraphQLAPI/ -c Release -o /app/out
+
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine AS runtime
+WORKDIR /app
+COPY --from=build /app/out .
+COPY ./GraphQLAPI/appsettings.json ./appsettings.json
+
+CMD ASPNETCORE_URLS=http://*:80 dotnet GraphQLAPI.dll
+
