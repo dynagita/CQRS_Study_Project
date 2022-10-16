@@ -8,5 +8,6 @@ namespace RestAPIDbQueryUpdate.Integration.Interface
     public interface IQueueReader
     {
         Task Read();
+        Task StopReading();
     }
 }

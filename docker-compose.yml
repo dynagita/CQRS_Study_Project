@@ -1,0 +1,81 @@
+version: '3.9'
+services:
+  writable:
+    container_name: writable
+    build:
+      dockerfile: dockerfile.wrt
+    ports: 
+      - 5000:80
+    depends_on:
+      - rabbitmq
+    networks:
+      like_app:
+        ipv4_address: 10.5.0.5
+  qryupdate:
+    container_name: qryupdate
+    build:
+      dockerfile: dockerfile.upd
+    ports: 
+      - 5001:80
+    depends_on:
+      - rabbitmq
+    networks:
+      like_app:
+        ipv4_address: 10.5.0.6
+  graphql:
+    container_name: graphql
+    build:
+      dockerfile: dockerfile.gql
+    ports: 
+      - 5002:80
+    depends_on:
+      - rabbitmq
+    networks:
+      like_app:
+        ipv4_address: 10.5.0.7
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    depends_on:
+      - mongo
+    ports:
+        - 5672:5672
+        - 15672:15672
+    environment:
+        - RABBITMQ_DEFAULT_USER=queryUpdate
+        - RABBITMQ_DEFAULT_PASS=queryUpdate
+    networks:
+      like_app:
+        ipv4_address: 10.5.0.4
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "MySuperSpecialPassword987"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    networks:
+      like_app:
+        ipv4_address: 10.5.0.2
+  mongo:
+    image: mongo
+    container_name: mongo    
+    depends_on:
+      - sqlserver
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: Root!123
+    ports:
+      - "27017:27017"
+    networks:
+      like_app:
+        ipv4_address: 10.5.0.3
+networks:
+  like_app:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1

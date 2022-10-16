@@ -15,4 +15,7 @@ WORKDIR /app
 COPY --from=build /app/out .
 COPY ./WritableRESTAPI/appsettings.json ./appsettings.json
 
+RUN apk add icu-libs
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+
 CMD ASPNETCORE_URLS=http://*:80 dotnet WritableRESTAPI.dll
