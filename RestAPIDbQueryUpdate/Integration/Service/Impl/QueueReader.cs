@@ -17,22 +17,22 @@ namespace RestAPIDbQueryUpdate.Integration.Impl
 {
     public class QueueReader : IQueueReader
     {
-        ConnectionFactory factory;
-        RabbitConfig config = new RabbitConfig();
-        ILogger<QueueReader> logger;
+        ConnectionFactory _factory;
+        RabbitConfig _config = new RabbitConfig();
+        ILogger<QueueReader> _logger;
         ReceiveHandlerFactory _handlerFactory;
-        IConnection connection = null;
-        IModel channel = null;
+        IConnection _connection = null;
+        IModel _channel = null;
 
         public QueueReader(IConfiguration configuration, ILogger<QueueReader> log, ReceiveHandlerFactory handlerFactory)
         {
-            logger = log;
+            _logger = log;
 
-            configuration.GetSection("ComponentQueue").Bind(config);
+            configuration.GetSection("ComponentQueue").Bind(_config);
 
-            factory = new ConnectionFactory()
+            _factory = new ConnectionFactory()
             {
-                Uri = new Uri(config.Connection)                
+                Uri = new Uri(_config.Connection)                
             };
 
             _handlerFactory = handlerFactory;
@@ -44,24 +44,24 @@ namespace RestAPIDbQueryUpdate.Integration.Impl
             {
                 var connect = GetChannel();
 
-                connect.QueueDeclare(queue: config.QueueName,
-                                     durable: config.Durable,
-                                     exclusive: config.Exclusive,
-                                     autoDelete: config.AutoDelete,
+                connect.QueueDeclare(queue: _config.QueueName,
+                                     durable: _config.Durable,
+                                     exclusive: _config.Exclusive,
+                                     autoDelete: _config.AutoDelete,
                                      arguments: null);
 
                         var consumer = new EventingBasicConsumer(connect);
                         
                         consumer.Received += HandleQueue;
 
-                        connect.BasicConsume(queue: config.QueueName,
+                        connect.BasicConsume(queue: _config.QueueName,
                                              autoAck: true,
                                              consumer: consumer);
 
             }
             catch (Exception ex)
             {
-                logger.LogError($"{nameof(QueueReader)}: An error has ocurred sending data to QueryDataBase.{Environment.NewLine}Ex: {ex.AllMessages()}{Environment.NewLine}{ex.StackTrace}");
+                _logger.LogError($"{nameof(QueueReader)}: An error has ocurred sending data to QueryDataBase.{Environment.NewLine}Ex: {ex.AllMessages()}{Environment.NewLine}{ex.StackTrace}");
 
                 //implement resilience for getting sure data will get into queue
             }
@@ -82,28 +82,36 @@ namespace RestAPIDbQueryUpdate.Integration.Impl
 
         private IConnection GetConnection()
         {
-            if (connection == null)
+            if (_connection == null)
             {
-                connection = factory.CreateConnection();
+                _connection = _factory.CreateConnection();
             }
 
-            return connection;
+            return _connection;
         }
 
         private IModel GetChannel()
         {
-            if (channel == null)
+            if (_channel == null)
             {
-                connection = GetConnection();
-                channel = connection.CreateModel();
-                channel.QueueDeclare(queue: config.QueueName,
-                                    durable: config.Durable,
-                                    exclusive: config.Exclusive,
-                                    autoDelete: config.AutoDelete,
+                _connection = GetConnection();
+                _channel = _connection.CreateModel();
+                _channel.QueueDeclare(queue: _config.QueueName,
+                                    durable: _config.Durable,
+                                    exclusive: _config.Exclusive,
+                                    autoDelete: _config.AutoDelete,
                                     arguments: null);
             }
 
-            return channel;
+            return _channel;
+        }
+
+        public async Task StopReading()
+        {
+            _channel.Close();
+            _channel.Dispose();
+            _connection.Close();
+            _connection.Dispose();
         }
     }
 }

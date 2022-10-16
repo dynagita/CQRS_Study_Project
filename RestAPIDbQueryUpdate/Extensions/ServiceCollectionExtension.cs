@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using RestAPIDbQueryUpdate.Context;
@@ -11,6 +12,7 @@ using RestAPIDbQueryUpdate.Integration.Interface;
 using RestAPIDbQueryUpdate.Integration.ReveiveHandler;
 using RestAPIDbQueryUpdate.Integration.ReveiveHandler.Handlers.Impl;
 using RestAPIDbQueryUpdate.Integration.ReveiveHandler.Handlers.Interface;
+using RestAPIDbQueryUpdate.Integration.Service.Interface;
 using RestAPIDbQueryUpdate.Profiles;
 using RestAPIDbQueryUpdate.Repository.Impl;
 using RestAPIDbQueryUpdate.Repository.Interface;
@@ -33,6 +35,7 @@ namespace RestAPIDbQueryUpdate.Extensions
         public static void AddServices(this IServiceCollection services)
         {
             services.AddSingleton<IQueueReader, QueueReader>();
+            services.AddSingleton<IHostedService, StartService>();
         }
 
         public static void AddContext(this IServiceCollection services, IConfiguration configs)

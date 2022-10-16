@@ -19,7 +19,7 @@ namespace WritableRESTAPI.Infrastructure.Context
             .Build();
             var builder = new DbContextOptionsBuilder<WritableDbContext>();
             var connectionString = configuration.GetConnectionString("WritableDbContext");
-            builder.UseMySql(connectionString);
+            builder.UseSqlServer(connectionString);
             return new WritableDbContext(builder.Options);
         }
     }

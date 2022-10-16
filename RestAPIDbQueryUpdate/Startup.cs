@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RestAPIDbQueryUpdate.Extensions;
+using RestAPIDbQueryUpdate.Integration.Service.Impl;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,8 @@ namespace RestAPIDbQueryUpdate
             services.AddHandlers();
 
             services.AddControllers();
+
+            services.AddHostedService<RabbitEventHostedService>();
 
             services.AddSwagger();
 

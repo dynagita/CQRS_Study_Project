@@ -21,8 +21,14 @@ namespace WritableRESTAPI.Util.Extensions
     {
         public static void AddContext(this IServiceCollection service, IConfiguration config)
         {
-            service.AddDbContext<WritableDbContext>(opt => opt.UseMySql(config.GetConnectionString("WritableDbContext")));
+            service.AddDbContext<WritableDbContext>(opt => opt.UseSqlServer(config.GetConnectionString("WritableDbContext")));
             service.AddScoped<RabbitConfig>();
+
+            using (var context = service.BuildServiceProvider().GetRequiredService<WritableDbContext>())
+            {
+                Console.WriteLine($"Migrating for: {config.GetConnectionString("WritableDbContext")}");
+                context.Database.Migrate();
+            }
         }
 
         public static void AddRepository(this IServiceCollection service)
@@ -52,7 +58,7 @@ namespace WritableRESTAPI.Util.Extensions
 
         public static void AddSwagger(this IServiceCollection service)
         {
-            service.AddSwaggerGen((c) => 
+            service.AddSwaggerGen((c) =>
             {
                 c.SwaggerDoc("v1",
                     new OpenApiInfo

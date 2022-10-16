@@ -1,9 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace WritableRESTAPI.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class _20221014_DbCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,7 +11,7 @@ namespace WritableRESTAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Active = table.Column<bool>(nullable: false),
                     Name = table.Column<string>(maxLength: 100, nullable: false),
                     LastName = table.Column<string>(maxLength: 100, nullable: false),
@@ -28,7 +27,7 @@ namespace WritableRESTAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Active = table.Column<bool>(nullable: false),
                     Abstract = table.Column<string>(maxLength: 1000, nullable: false),
                     Content = table.Column<string>(nullable: false),
@@ -52,7 +51,7 @@ namespace WritableRESTAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Active = table.Column<bool>(nullable: false),
                     UserId = table.Column<int>(nullable: false),
                     ArticleId = table.Column<int>(nullable: false)
