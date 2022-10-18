@@ -20,7 +20,7 @@ namespace RestAPIDbQueryUpdate.Integration.ReveiveHandler.Handlers.Impl
 
         protected override Article Normalize(Article entity)
         {
-            entity = _business.NormalizeEntity(entity).Result;
+            entity = _business.NormalizeEntityAsync(entity).Result;
 
             return entity;
         }

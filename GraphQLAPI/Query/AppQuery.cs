@@ -37,7 +37,7 @@ namespace GraphQLAPI.Query
             {
                 
                 var user = GetUser(context);                
-                return (object)userRepo.ListFilteringByEntity(user);
+                return (object)userRepo.ListFilteringByEntityAsync(user);
 
             }));
 
@@ -64,7 +64,7 @@ namespace GraphQLAPI.Query
             {
                 var user = GetUser(context);
                 
-                return (object)userRepo.GetFilteringByEntity(user);
+                return (object)userRepo.GetFilteringByEntityAsync(user);
             }));
 
             Field<ListGraphType<ArticleType>>("articles", arguments: new QueryArguments(new List<QueryArgument>()
@@ -103,7 +103,7 @@ namespace GraphQLAPI.Query
             {
 
                 var Article = GetArticle(context);
-                return articleRepo.ListFilteringByEntity(Article);
+                return articleRepo.ListFilteringByEntityAsync(Article);
 
             });
 
@@ -142,7 +142,7 @@ namespace GraphQLAPI.Query
             {
                 var Article = GetArticle(context);
 
-                return articleRepo.GetFilteringByEntity(Article);
+                return articleRepo.GetFilteringByEntityAsync(Article);
             });
         }
 

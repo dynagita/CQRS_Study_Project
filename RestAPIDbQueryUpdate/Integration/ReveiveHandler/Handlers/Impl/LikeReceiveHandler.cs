@@ -23,9 +23,9 @@ namespace RestAPIDbQueryUpdate.Integration.ReveiveHandler.Handlers.Impl
             _business = business;
         }
 
-        public override async Task UpdateDB(Message message)
+        public override async Task UpdateDBAsync(Message message)
         {
-            await _business.UpdateLike(message);
+            await _business.UpdateLikeAsync(message);
         }
     }
 }

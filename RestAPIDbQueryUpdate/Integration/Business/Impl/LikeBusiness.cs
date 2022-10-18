@@ -24,15 +24,15 @@ namespace RestAPIDbQueryUpdate.Integration.Business.Impl
             _repository = repository;
         }
 
-        public async Task UpdateLike(Message message)
+        public async Task UpdateLikeAsync(Message message)
         {
             QueueMethod method = (QueueMethod)message.Method;
 
             Like like = JsonConvert.DeserializeObject<Like>(message.Envelop);
 
-            User user = _userRepository.FindOne(like.UserId.ToLong()).Result;
+            User user = _userRepository.FindOneAsync(like.UserId.ToLong()).Result;
 
-            Article article = _articleRepository.FindOne(like.ArticleId.ToLong()).Result;
+            Article article = _articleRepository.FindOneAsync(like.ArticleId.ToLong()).Result;
 
 
             using (TransactionScope scope = new TransactionScope())
@@ -80,7 +80,7 @@ namespace RestAPIDbQueryUpdate.Integration.Business.Impl
                     WritableRelation = writableRelation
                 };
 
-                _repository.Insert(like).GetAwaiter().GetResult();
+                _repository.InsertAsync(like).GetAwaiter().GetResult();
             }
             else
             {
@@ -99,7 +99,7 @@ namespace RestAPIDbQueryUpdate.Integration.Business.Impl
                 article.TotalLike--;
             }
             
-            _articleRepository.Update(article).GetAwaiter().GetResult();
+            _articleRepository.UpdateAsync(article).GetAwaiter().GetResult();
         }
 
         private void DeleteLike(string userId, string articleId)
@@ -107,7 +107,7 @@ namespace RestAPIDbQueryUpdate.Integration.Business.Impl
             var likeDb = _repository.FindByUserIdAndArticleId(userId, articleId).Result;
             if (likeDb != null && !string.IsNullOrEmpty(likeDb.Id))
             {
-                _repository.Delete(likeDb).GetAwaiter().GetResult();
+                _repository.DeleteAsync(likeDb).GetAwaiter().GetResult();
             }
             else
             {

@@ -2,6 +2,8 @@
 using GraphQLAPI.Repository.Context;
 using GraphQLAPI.Repository.Interface;
 using MongoDB.Driver;
+using Polly;
+using Polly.Retry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +14,8 @@ namespace GraphQLAPI.Repository.Impl
     public class RepositoryBase<T> : IRepositoryBase<T> where T : EntityBase
     {
         private readonly IMongoCollection<T> _collection;
+        private readonly AsyncRetryPolicy _retry;
+
         public RepositoryBase(IGraphQLAPIContext context)
         {
             var client = new MongoClient(context.ConnectionString);
@@ -24,65 +28,55 @@ namespace GraphQLAPI.Repository.Impl
                 database.CreateCollection(typeof(T).Name);
                 _collection = database.GetCollection<T>(typeof(T).Name.ToLower());
             }
+            _retry = Policy.Handle<Exception>()
+                .WaitAndRetryAsync(3, attemptRetry => TimeSpan.FromSeconds(Math.Pow(3, attemptRetry)));
         }
 
-        public async Task<T> Get(FilterDefinition<T> expression)
+        public async Task<T> GetAsync(FilterDefinition<T> expression)
         {
-            return await Task.Run(() =>
-            {
-                return _collection.Find<T>(expression).FirstOrDefault();
-            });
-
+            var data = await _retry.ExecuteAsync(async () => await _collection.FindAsync<T>(expression));
+            return data.FirstOrDefault();
         }
 
-        public async Task<T> GetById(string id)
+        public async Task<T> GetByIdAsync(string id)
         {
-            return await Task.Run(() =>
-            {
-                return _collection.Find<T>(collection => collection.Id.Equals(id)).FirstOrDefault();
-            });
-
+            var data = await _retry.ExecuteAsync(async () => await _collection.FindAsync<T>(collection => collection.Id.Equals(id)));
+            return data.FirstOrDefault();
         }
 
-        public async Task<IList<T>> List()
+        public async Task<IList<T>> ListAsync()
         {
-            return await Task.Run(() =>
-            {
-                return _collection.Find(collection => true).ToList();
-            });
-
+            var data = await _retry.ExecuteAsync(async () => await _collection.FindAsync(collection => true));
+            return data.ToList();
         }
 
-        public async Task<IList<T>> List(FilterDefinition<T> expression)
+        public async Task<IList<T>> ListAsync(FilterDefinition<T> expression)
         {
-            return await Task.Run(() =>
-            {
-                return _collection.Find(expression).ToList();
-            });
-
+            var data = await _retry.ExecuteAsync(async () => await _collection.FindAsync(expression));
+            return data.ToList();
         }
 
-        public async Task<IList<T>> ListFilteringByEntity(T entity)
+        public async Task<IList<T>> ListFilteringByEntityAsync(T entity)
         {
             var filter = GetDynamicFiler(entity);
             if (filter == null)
             {
-                return await List();
+                return await ListAsync();
             }
             else
             {
-                return await List(filter);
+                return await ListAsync(filter);
             }
         }
 
-        public async Task<T> GetFilteringByEntity(T entity)
+        public async Task<T> GetFilteringByEntityAsync(T entity)
         {
             var filter = GetDynamicFiler(entity);
             if (filter == null)
             {
                 throw new ArgumentException("You can't get a user with any filters.");
             }
-            return await Get(filter);
+            return await GetAsync(filter);
         }
 
         protected virtual FilterDefinition<T> GetDynamicFiler(T entity)

@@ -3,10 +3,6 @@ using RestAPIDbQueryUpdate.Context;
 using RestAPIDbQueryUpdate.Domain;
 using RestAPIDbQueryUpdate.Extensions;
 using RestAPIDbQueryUpdate.Repository.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RestAPIDbQueryUpdate.Repository.Impl
 {
@@ -32,16 +28,16 @@ namespace RestAPIDbQueryUpdate.Repository.Impl
                         .Set(x => x.Abstract, entity.Abstract)
                         .Set(x => x.Content, entity.Content)
                         .Set(x => x.Subject, entity.Subject)
-                        .Set(x => x.Author, ObterAuthor(entity.Id.ToLong()))
+                        .Set(x => x.Author, GetAuthor(entity.Author.Id.ToLong()))
                         .Set(x => x.TotalLike, entity.TotalLike)
                         .Set(x => x.WritableRelation, entity.WritableRelation);
 
             return update;
         }
 
-        public User ObterAuthor(long writableRelation)
+        public User GetAuthor(long writableRelation)
         {
-            var user = _userRepository.FindOne(writableRelation).Result;
+            var user = _userRepository.FindOneAsync(writableRelation).Result;
             return user;
         }
     }

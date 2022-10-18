@@ -20,15 +20,15 @@ namespace RestAPIDbQueryUpdate.Integration.Business.Impl
             _articleRepository = articleRepository;
         }
 
-        public async Task<Article> NormalizeEntity(Article article)
+        public async Task<Article> NormalizeEntityAsync(Article article)
         {
             article.Author.WritableRelation = article.Author.Id.ToLong();
 
-            var user = _repository.FindOne(article.Author.WritableRelation).Result;
+            var user = _repository.FindOneAsync(article.Author.WritableRelation).Result;
 
             article.Author.Id = user.Id;
 
-            var articleDb = _articleRepository.FindOne(article.WritableRelation).Result;
+            var articleDb = _articleRepository.FindOneAsync(article.WritableRelation).Result;
             if (articleDb != null && !string.IsNullOrEmpty(article.Id))
             {
                 article.Id = articleDb.Id;

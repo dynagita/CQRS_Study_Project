@@ -35,7 +35,6 @@ namespace RestAPIDbQueryUpdate.Extensions
         public static void AddServices(this IServiceCollection services)
         {
             services.AddSingleton<IQueueReader, QueueReader>();
-            services.AddSingleton<IHostedService, StartService>();
         }
 
         public static void AddContext(this IServiceCollection services, IConfiguration configs)

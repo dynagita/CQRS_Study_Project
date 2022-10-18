@@ -8,6 +8,6 @@ namespace WritableRESTAPI.Integration.Interface
 {
     public interface IQueueSender
     {
-        Task Send(object message, QueueMethod method);
+        Task SendAsync(object message, QueueMethod method);
     }
 }
