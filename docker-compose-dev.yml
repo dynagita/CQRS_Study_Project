@@ -1,44 +1,5 @@
 version: '3.9'
 services:
-  writable:
-    container_name: writable
-    build:
-      dockerfile: dockerfile.wrt
-    ports: 
-      - 5000:80
-    depends_on:
-      - rabbitmq
-    environment:
-      ASPNETCORE_ENVIRONMENT: 'Staging'
-    networks:
-      like_app:
-        ipv4_address: 10.5.0.5
-  qryupdate:
-    container_name: qryupdate
-    build:
-      dockerfile: dockerfile.upd
-    ports: 
-      - 5001:80
-    depends_on:
-      - rabbitmq
-    environment:
-      ASPNETCORE_ENVIRONMENT: 'Staging'
-    networks:
-      like_app:
-        ipv4_address: 10.5.0.6
-  graphql:
-    container_name: graphql
-    build:
-      dockerfile: dockerfile.gql
-    ports: 
-      - 5002:80
-    depends_on:
-      - rabbitmq
-    environment:
-      ASPNETCORE_ENVIRONMENT: 'Staging'
-    networks:
-      like_app:
-        ipv4_address: 10.5.0.7
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: rabbitmq
