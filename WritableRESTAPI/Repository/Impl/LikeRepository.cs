@@ -26,14 +26,14 @@ namespace WritableRESTAPI.Repository.Impl
 
         protected override Like NormalizeForeignKeys(Like entity)
         {
-            var user = _userRepository.Get(entity.UserId).Result;
-            var article = _articleRepository.Get(entity.ArticleId).Result;
+            var user = _userRepository.GetAsync(entity.UserId).Result;
+            var article = _articleRepository.GetAsync(entity.ArticleId).Result;
             entity.Article = article;
             entity.User = user;
             return base.NormalizeForeignKeys(entity);
         }
 
-        public virtual async Task<Like> Update(int id, Like entity)
+        public virtual async Task<Like> UpdateAsync(int id, Like entity)
         {
             throw new NotSupportedException("You can't update a like. Operations permited: Include and Delete.");
         }

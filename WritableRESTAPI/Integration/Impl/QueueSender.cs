@@ -28,7 +28,7 @@ namespace WritableRESTAPI.Integration.Impl
                 Uri = new Uri(RabbitConfig.Connection)
             };
         }
-        public async Task Send(object entity, QueueMethod method)
+        public async Task SendAsync(object entity, QueueMethod method)
         {
             try
             {

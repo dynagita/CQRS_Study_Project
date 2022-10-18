@@ -5,6 +5,6 @@ namespace RestAPIDbQueryUpdate.Integration.Business.Interface
 {
     public interface IArticleBusiness
     {
-        Task<Article> NormalizeEntity(Article article);
+        Task<Article> NormalizeEntityAsync(Article article);
     }
 }

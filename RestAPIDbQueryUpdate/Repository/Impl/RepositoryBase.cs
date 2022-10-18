@@ -1,9 +1,10 @@
 ﻿using MongoDB.Driver;
+using Polly;
+using Polly.Retry;
 using RestAPIDbQueryUpdate.Context;
 using RestAPIDbQueryUpdate.Domain;
 using RestAPIDbQueryUpdate.Repository.Interface;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,6 +13,7 @@ namespace RestAPIDbQueryUpdate.Repository.Impl
     public class RepositoryBase<T> : IRepositoryBase<T> where T : EntityBase
     {
         protected readonly IMongoCollection<T> _collection;
+        private readonly AsyncRetryPolicy _retry;
         public RepositoryBase(IDbContext context)
         {
             var client = new MongoClient(context.ConnectionString);
@@ -24,28 +26,31 @@ namespace RestAPIDbQueryUpdate.Repository.Impl
                 database.CreateCollection(typeof(T).Name);
                 _collection = database.GetCollection<T>(typeof(T).Name.ToLower());
             }
+
+            _retry = Policy.Handle<Exception>()
+                .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(3, retryAttempt)));
         }
 
-        public async Task Delete(T entity)
+        public async Task DeleteAsync(T entity)
         {
-            await _collection.DeleteOneAsync(GetEntityFilter(entity));
+            await _retry.ExecuteAsync(async () => await _collection.DeleteOneAsync(GetEntityFilter(entity)));
         }
 
-        public async Task<T> FindOne(long writableRelation)
+        public async Task<T> FindOneAsync(long writableRelation)
         {
-                var filter = Builders<T>.Filter.Eq(x => x.WritableRelation, writableRelation);
-
-                return await _collection.Find<T>(filter).FirstOrDefaultAsync();
+            var filter = Builders<T>.Filter.Eq(x => x.WritableRelation, writableRelation);
+            var data = await _retry.ExecuteAsync(async () => await _collection.FindAsync<T>(filter));
+            return data.FirstOrDefault();
         }
 
-        public async Task Insert(T entity)
+        public async Task InsertAsync(T entity)
         {
-            await _collection.InsertOneAsync(entity);
+            await _retry.ExecuteAsync(async () => await _collection.InsertOneAsync(entity));
         }
 
-        public async Task Update(T entity)
+        public async Task UpdateAsync(T entity)
         {
-             await _collection.UpdateOneAsync(GetEntityFilter(entity), GetUpdateDefinition(entity));
+            await _retry.ExecuteAsync(async () => await _collection.UpdateOneAsync(GetEntityFilter(entity), GetUpdateDefinition(entity)));
         }
 
         protected virtual FilterDefinition<T> GetEntityFilter(T entity)

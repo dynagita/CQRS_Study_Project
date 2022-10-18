@@ -40,13 +40,13 @@ namespace RestAPIDbQueryUpdate.Repository.Impl
 
         private string GetUserMongoID(long writableRelation)
         {
-            var user = _userRepository.FindOne(writableRelation).Result;
+            var user = _userRepository.FindOneAsync(writableRelation).Result;
             return user.Id;
         }
 
         private string GetArticleMongoID(long writableRelation)
         {
-            var article = _articleRepository.FindOne(writableRelation).Result;            
+            var article = _articleRepository.FindOneAsync(writableRelation).Result;            
             return article.Id;
         }
 

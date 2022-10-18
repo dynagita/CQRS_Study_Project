@@ -5,6 +5,6 @@ namespace RestAPIDbQueryUpdate.Integration.Service.Interface
 {
     public interface IEventHostedService : IHostedService
     {
-        Task StartReadingQueue();
+        Task StartReadingQueueAsync();
     }
 }

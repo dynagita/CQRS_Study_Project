@@ -20,7 +20,7 @@ namespace RestAPIDbQueryUpdate.Integration.ReveiveHandler.Handlers.Impl
             _logger = logger;
         }
 
-        public virtual async Task UpdateDB(Message message)
+        public virtual async Task UpdateDBAsync(Message message)
         {
             var entity = DeserializeEntity(message.Envelop);
             entity.WritableRelation = entity.Id.ToLong();
@@ -32,14 +32,14 @@ namespace RestAPIDbQueryUpdate.Integration.ReveiveHandler.Handlers.Impl
             {
                 case QueueMethod.Insert:
                     Normalize(entity);
-                    await _repository.Insert(entity);
+                    await _repository.InsertAsync(entity);
                     break;
                 case QueueMethod.Update:
                     Normalize(entity);
-                    await _repository.Update(entity);
+                    await _repository.UpdateAsync(entity);
                     break;
                 case QueueMethod.Delete:
-                    await _repository.Delete(entity);
+                    await _repository.DeleteAsync(entity);
                     break;
                 default:
                     throw new NotImplementedException($"Method '{method.ToString()}' not immplemented.");
@@ -51,15 +51,15 @@ namespace RestAPIDbQueryUpdate.Integration.ReveiveHandler.Handlers.Impl
             return JsonConvert.DeserializeObject<T>(data.ToString());
         }
 
-        public async Task Handle(Message message)
+        public async Task HandleAsync(Message message)
         {
             try
             {
-                await UpdateDB(message);
+                await UpdateDBAsync(message);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"{nameof(T)}-{nameof(Handle)}: An error has ocurred sending data to QueryDataBase.{Environment.NewLine}Ex: {ex.AllMessages()}{Environment.NewLine}{ex.StackTrace}");
+                _logger.LogError($"{nameof(T)}-{nameof(HandleAsync)}: An error has ocurred sending data to QueryDataBase.{Environment.NewLine}Ex: {ex.AllMessages()}{Environment.NewLine}{ex.StackTrace}");
                 //Send to ErroQueue
                 throw ex;
             }

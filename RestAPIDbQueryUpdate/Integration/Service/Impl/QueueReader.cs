@@ -38,7 +38,7 @@ namespace RestAPIDbQueryUpdate.Integration.Impl
             _handlerFactory = handlerFactory;
         }
 
-        public async Task Read()
+        public async Task ReadAsync()
         {
             try
             {
@@ -62,7 +62,7 @@ namespace RestAPIDbQueryUpdate.Integration.Impl
             catch (Exception ex)
             {
                 _logger.LogError($"{nameof(QueueReader)}: An error has ocurred sending data to QueryDataBase.{Environment.NewLine}Ex: {ex.AllMessages()}{Environment.NewLine}{ex.StackTrace}");
-
+                throw;
                 //implement resilience for getting sure data will get into queue
             }
         }
@@ -77,7 +77,7 @@ namespace RestAPIDbQueryUpdate.Integration.Impl
 
             var handler = _handlerFactory.CreateHandler();
 
-            handler.Handle(message);
+            handler.HandleAsync(message);
         }
 
         private IConnection GetConnection()
@@ -106,7 +106,7 @@ namespace RestAPIDbQueryUpdate.Integration.Impl
             return _channel;
         }
 
-        public async Task StopReading()
+        public async Task StopReadingAsync()
         {
             _channel.Close();
             _channel.Dispose();

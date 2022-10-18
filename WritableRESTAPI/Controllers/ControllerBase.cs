@@ -24,7 +24,7 @@ namespace WritableRESTAPI.Controllers
         {
             try
             {
-                return await Service.Insert(viewModel);
+                return await Service.InsertAsync(viewModel);
             }
             catch
             {
@@ -40,7 +40,7 @@ namespace WritableRESTAPI.Controllers
         {
             try
             {
-                return await Service.Update(id, viewModel);
+                return await Service.UpdateAsync(id, viewModel);
             }
             catch
             {
@@ -56,7 +56,7 @@ namespace WritableRESTAPI.Controllers
         {
             try
             {
-                return await Service.Delete(id);
+                return await Service.DeleteAsync(id);
             }
             catch
             {

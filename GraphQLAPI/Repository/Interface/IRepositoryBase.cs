@@ -7,16 +7,16 @@ namespace GraphQLAPI.Repository.Interface
 {
     public interface IRepositoryBase<T>
     {
-        Task<IList<T>> List();
+        Task<IList<T>> ListAsync();
 
-        Task<IList<T>> List(FilterDefinition<T> expression);
+        Task<IList<T>> ListAsync(FilterDefinition<T> expression);
 
-        Task<T> GetById(string id);
+        Task<T> GetByIdAsync(string id);
 
-        Task<T> Get(FilterDefinition<T> expression);
+        Task<T> GetAsync(FilterDefinition<T> expression);
 
-        Task<IList<T>> ListFilteringByEntity(T entity);
+        Task<IList<T>> ListFilteringByEntityAsync(T entity);
 
-        Task<T> GetFilteringByEntity(T entity);
+        Task<T> GetFilteringByEntityAsync(T entity);
     }
 }

@@ -2,10 +2,13 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Polly;
+using Polly.Retry;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RestAPIDbQueryUpdate.Extensions;
 using RestAPIDbQueryUpdate.Integration.Impl;
+using RestAPIDbQueryUpdate.Integration.Interface;
 using RestAPIDbQueryUpdate.Integration.Model;
 using RestAPIDbQueryUpdate.Integration.ReveiveHandler;
 using System;
@@ -17,98 +20,23 @@ namespace RestAPIDbQueryUpdate.Integration.Service.Impl
 {
     public class RabbitEventHostedService : IHostedService
     {
-        ConnectionFactory factory;
-        RabbitConfig config = new RabbitConfig();
-        ILogger<QueueReader> logger;
-        ReceiveHandlerFactory _handlerFactory;
-        IConnection connection = null;
-        IModel channel = null;
-
-        public RabbitEventHostedService(IConfiguration configuration, ILogger<QueueReader> log, ReceiveHandlerFactory handlerFactory)
+        private readonly AsyncRetryPolicy _retry;
+        private readonly IQueueReader _queueReader;
+        public RabbitEventHostedService(IQueueReader queueReader)
         {
-            logger = log;
-
-            configuration.GetSection("ComponentQueue").Bind(config);
-
-            factory = new ConnectionFactory()
-            {
-                Uri = new Uri(config.Connection)
-            };
-
-            _handlerFactory = handlerFactory;
+            _queueReader = queueReader;
+            _retry = Policy.Handle<Exception>()
+                .WaitAndRetryAsync(3, attemptRetry => TimeSpan.FromSeconds(Math.Pow(10, attemptRetry)));
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            try
-            {
-                var connect = GetChannel();
-
-                connect.QueueDeclare(queue: config.QueueName,
-                                     durable: config.Durable,
-                                     exclusive: config.Exclusive,
-                                     autoDelete: config.AutoDelete,
-                                     arguments: null);
-
-                var consumer = new EventingBasicConsumer(connect);
-
-                consumer.Received += HandleQueue;
-
-                connect.BasicConsume(queue: config.QueueName,
-                                     autoAck: true,
-                                     consumer: consumer);
-
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"{nameof(QueueReader)}: An error has ocurred sending data to QueryDataBase.{Environment.NewLine}Ex: {ex.AllMessages()}{Environment.NewLine}{ex.StackTrace}");
-
-                //implement resilience for getting sure data will get into queue
-            }
+            await _retry.ExecuteAsync(async () => await _queueReader.ReadAsync());
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
-        }
-
-        protected void HandleQueue(object model, BasicDeliverEventArgs ea)
-        {
-            var body = ea.Body.ToArray();
-            var envelope = Encoding.UTF8.GetString(body);
-            var message = JsonConvert.DeserializeObject<Message>(envelope);
-
-            _handlerFactory.Entity = message.Entity;
-
-            var handler = _handlerFactory.CreateHandler();
-
-            handler.Handle(message);
-        }
-
-        private IConnection GetConnection()
-        {
-            if (connection == null)
-            {
-                connection = factory.CreateConnection();
-            }
-
-            return connection;
-        }
-
-        private IModel GetChannel()
-        {
-            if (channel == null)
-            {
-                connection = GetConnection();
-                channel = connection.CreateModel();
-                channel.QueueDeclare(queue: config.QueueName,
-                                    durable: config.Durable,
-                                    exclusive: config.Exclusive,
-                                    autoDelete: config.AutoDelete,
-                                    arguments: null);
-            }
-
-            return channel;
+            await _retry.ExecuteAsync(async () => await _queueReader.StopReadingAsync());
         }
     }
 }

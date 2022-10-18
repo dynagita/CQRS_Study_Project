@@ -7,9 +7,9 @@ namespace WritableRESTAPI.Service.Interface
 {
     public interface IServiceBase<ViewModel>
     {
-        Task<ViewModel> Insert(ViewModel viewModel);
-        Task<ViewModel> Update(int id, ViewModel viewModel);
-        Task<ViewModel> Delete(int id);
+        Task<ViewModel> InsertAsync(ViewModel viewModel);
+        Task<ViewModel> UpdateAsync(int id, ViewModel viewModel);
+        Task<ViewModel> DeleteAsync(int id);
 
     }
 }

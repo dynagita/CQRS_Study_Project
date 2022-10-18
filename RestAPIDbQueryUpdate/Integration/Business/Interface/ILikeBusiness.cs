@@ -5,6 +5,6 @@ namespace RestAPIDbQueryUpdate.Integration.Business.Interface
 {
     public interface ILikeBusiness
     {
-        Task UpdateLike(Message message);
+        Task UpdateLikeAsync(Message message);
     }
 }

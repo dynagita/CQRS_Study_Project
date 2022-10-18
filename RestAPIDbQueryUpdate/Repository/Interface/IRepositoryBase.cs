@@ -7,10 +7,10 @@ namespace RestAPIDbQueryUpdate.Repository.Interface
 {
     public interface IRepositoryBase<T>
     {
-        Task Update(T entity);
-        Task Insert(T entity);
-        Task Delete(T entity);
+        Task UpdateAsync(T entity);
+        Task InsertAsync(T entity);
+        Task DeleteAsync(T entity);
 
-        Task<T> FindOne(long writableRelation);
+        Task<T> FindOneAsync(long writableRelation);
     }
 }
