@@ -28,7 +28,7 @@ namespace RestAPIDbQueryUpdate.Repository.Impl
                         .Set(x => x.Abstract, entity.Abstract)
                         .Set(x => x.Content, entity.Content)
                         .Set(x => x.Subject, entity.Subject)
-                        .Set(x => x.Author, GetAuthor(entity.Author.Id.ToLong()))
+                        .Set(x => x.Author, GetAuthor(entity.Author.WritableRelation))
                         .Set(x => x.TotalLike, entity.TotalLike)
                         .Set(x => x.WritableRelation, entity.WritableRelation);
 

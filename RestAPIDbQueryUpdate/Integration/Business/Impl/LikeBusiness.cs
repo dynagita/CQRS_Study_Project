@@ -30,9 +30,9 @@ namespace RestAPIDbQueryUpdate.Integration.Business.Impl
 
             Like like = JsonConvert.DeserializeObject<Like>(message.Envelop);
 
-            User user = _userRepository.FindOneAsync(like.UserId.ToLong()).Result;
+            User user = await _userRepository.FindOneAsync(like.UserId.ToLong());
 
-            Article article = _articleRepository.FindOneAsync(like.ArticleId.ToLong()).Result;
+            Article article = await _articleRepository.FindOneAsync(like.ArticleId.ToLong());
 
 
             using (TransactionScope scope = new TransactionScope())
