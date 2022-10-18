@@ -21,6 +21,10 @@ namespace GraphQLAPI
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+            .ConfigureAppConfiguration((hostBuilder, configurationBuilder) => {
+                configurationBuilder
+                .AddJsonFile($"appsettings.{hostBuilder.HostingEnvironment.EnvironmentName}.json");
+            });
     }
 }

@@ -1,11 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace WritableRESTAPI
 {
@@ -21,6 +16,10 @@ namespace WritableRESTAPI
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+            .ConfigureAppConfiguration( (hostBuilder, configurationBuilder) => {
+                configurationBuilder
+                .AddJsonFile($"appsettings.{hostBuilder.HostingEnvironment.EnvironmentName}.json");
+            });
     }
 }

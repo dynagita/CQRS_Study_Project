@@ -21,6 +21,11 @@ namespace RestAPIDbQueryUpdate
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+            .ConfigureAppConfiguration((hostBuilder, configurationBuilder) =>
+            {
+                configurationBuilder
+                .AddJsonFile($"appsettings.{hostBuilder.HostingEnvironment.EnvironmentName}.json");
+            });
     }
 }
