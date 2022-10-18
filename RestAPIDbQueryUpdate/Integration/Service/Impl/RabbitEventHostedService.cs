@@ -26,7 +26,7 @@ namespace RestAPIDbQueryUpdate.Integration.Service.Impl
         {
             _queueReader = queueReader;
             _retry = Policy.Handle<Exception>()
-                .WaitAndRetryAsync(3, attemptRetry => TimeSpan.FromSeconds(Math.Pow(30, attemptRetry)));
+                .WaitAndRetryAsync(3, attemptRetry => TimeSpan.FromSeconds(Math.Pow(10, attemptRetry)));
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
